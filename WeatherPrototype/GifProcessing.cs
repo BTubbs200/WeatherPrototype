@@ -115,7 +115,7 @@ namespace WeatherPrototype
             var graphicImage = Graphics.FromImage(bitMapImage);
             Random rand = new Random();
 
-            // For each pixel in mask, if pixel is populated, 1/1000 chance of text being printed on at x,y on graphicImage.
+            // For each pixel in mask, if pixel is populated, 1/200 chance of text being printed on at x,y on graphicImage.
             for (int y = 0; y < mask.Rows; y++)
             {
                 for (int x = 0; x < mask.Cols; x++)
