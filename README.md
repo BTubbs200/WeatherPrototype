@@ -14,4 +14,4 @@ Load your loop GIF into the program from the `File` menu dropdown and your loop 
 ![image](https://github.com/BTubbs200/WeatherPrototype/assets/131938002/0d401937-abc8-4e2b-a637-1c2d013a8afa)
 
 ## Note
-The program does a nearly perfect job of detecting all areas of rain, although this may not reflect 100% accurately in the text display, which only serves as feedback for human eyes and is limitied by a threshold to prevent text from completely bombarding the screen.
+The program does a nearly perfect job of detecting all areas of rain, although this may not reflect 100% accurately in the text display, which only serves as feedback for human eyes and is limited by a threshold to prevent text from completely bombarding the screen.
