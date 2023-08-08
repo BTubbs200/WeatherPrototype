@@ -1,6 +1,3 @@
-using System.Runtime.CompilerServices;
-using System.Windows.Forms;
-using System.Drawing;
 using ImageMagick;
 
 namespace WeatherPrototype
@@ -10,16 +7,30 @@ namespace WeatherPrototype
         public static class Globals
         {
             private static string imgFilePath = string.Empty;
+
+            private static ListBox debugOutputListBox;
+
             public static string imgFilePathValue
             {
                 get { return imgFilePath; }
                 set { imgFilePath = value; }
+            }
+
+            public static void SetListBox(ListBox listBox)
+            {
+                debugOutputListBox = listBox;
+            }
+
+            public static void AddListBoxItems(string debugInfo)
+            {
+                debugOutputListBox.Items.Add(debugInfo);
             }
         }
 
         public Form1()
         {
             InitializeComponent();
+            Globals.SetListBox(debugOutputListBox);
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -35,13 +46,14 @@ namespace WeatherPrototype
                 {
                     Globals.imgFilePathValue = openFileDialog.FileName;
                     displayPicturebox.Image = Image.FromFile(openFileDialog.FileName);
-                    debugToolStripMenuItem.Enabled = true;
                     demoButton.Enabled = true;
+                    Globals.AddListBoxItems($"Succesfully loaded {openFileDialog.FileName}.");
                     statusLabel.Text = "File loaded successfully!";
                     demoButton.Text = "Process Loop";
                 }
                 else
                 {
+                    Globals.AddListBoxItems($"Ran into problem loading {openFileDialog.FileName}.");
                     statusLabel.Text = "Failed to load file. Check if file is valid!";
                 }
             }
@@ -70,6 +82,20 @@ namespace WeatherPrototype
             demoButton.Enabled = false;
             demoButton.Text = "Success!";
             statusLabel.Text = $"Success!";
+        }
+
+        private void showOutputToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!debugOutputListBox.Visible)
+            {
+                showOutputToolStripMenuItem.Text = "Hide Program Log";
+                debugOutputListBox.Visible = true;
+            }
+            else
+            {
+                showOutputToolStripMenuItem.Text = "Show Program Log";
+                debugOutputListBox.Visible = false;
+            }
         }
     }
 }

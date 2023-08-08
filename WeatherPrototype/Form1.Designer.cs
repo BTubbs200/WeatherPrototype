@@ -32,9 +32,11 @@
             fileToolStripMenuItem = new ToolStripMenuItem();
             openToolStripMenuItem = new ToolStripMenuItem();
             debugToolStripMenuItem = new ToolStripMenuItem();
+            showOutputToolStripMenuItem = new ToolStripMenuItem();
             displayPicturebox = new PictureBox();
             statusLabel = new Label();
             demoButton = new Button();
+            debugOutputListBox = new ListBox();
             menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)displayPicturebox).BeginInit();
             SuspendLayout();
@@ -64,10 +66,17 @@
             // 
             // debugToolStripMenuItem
             // 
-            debugToolStripMenuItem.Enabled = false;
+            debugToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { showOutputToolStripMenuItem });
             debugToolStripMenuItem.Name = "debugToolStripMenuItem";
             debugToolStripMenuItem.Size = new Size(54, 20);
             debugToolStripMenuItem.Text = "Debug";
+            // 
+            // showOutputToolStripMenuItem
+            // 
+            showOutputToolStripMenuItem.Name = "showOutputToolStripMenuItem";
+            showOutputToolStripMenuItem.Size = new Size(175, 22);
+            showOutputToolStripMenuItem.Text = "Show Program Log";
+            showOutputToolStripMenuItem.Click += showOutputToolStripMenuItem_Click;
             // 
             // displayPicturebox
             // 
@@ -82,7 +91,7 @@
             // 
             statusLabel.AutoSize = true;
             statusLabel.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point);
-            statusLabel.Location = new Point(93, 542);
+            statusLabel.Location = new Point(93, 548);
             statusLabel.Name = "statusLabel";
             statusLabel.Size = new Size(181, 21);
             statusLabel.TabIndex = 2;
@@ -100,16 +109,30 @@
             demoButton.UseVisualStyleBackColor = true;
             demoButton.Click += demoButton_Click;
             // 
+            // debugOutputListBox
+            // 
+            debugOutputListBox.BackColor = SystemColors.ControlLight;
+            debugOutputListBox.FormattingEnabled = true;
+            debugOutputListBox.HorizontalScrollbar = true;
+            debugOutputListBox.ItemHeight = 15;
+            debugOutputListBox.Location = new Point(93, 579);
+            debugOutputListBox.Name = "debugOutputListBox";
+            debugOutputListBox.Size = new Size(445, 64);
+            debugOutputListBox.TabIndex = 5;
+            debugOutputListBox.Visible = false;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(784, 661);
+            Controls.Add(debugOutputListBox);
             Controls.Add(demoButton);
             Controls.Add(statusLabel);
             Controls.Add(displayPicturebox);
             Controls.Add(menuStrip1);
             MainMenuStrip = menuStrip1;
+            MaximizeBox = false;
             Name = "Form1";
             Text = "WeatherProtoype";
             menuStrip1.ResumeLayout(false);
@@ -128,5 +151,7 @@
         private ToolStripMenuItem debugToolStripMenuItem;
         private Label statusLabel;
         private Button demoButton;
+        private ListBox debugOutputListBox;
+        private ToolStripMenuItem showOutputToolStripMenuItem;
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
-using ImageMagick;
+﻿using ImageMagick;
 
 namespace WeatherPrototype
 {

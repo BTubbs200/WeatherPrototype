@@ -1,10 +1,7 @@
 ﻿using Emgu.CV;
 using Emgu.CV.Structure;
-using WeatherPrototype;
 using ImageMagick;
-using System;
-using System.Drawing;
-using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace WeatherPrototype
 {
@@ -50,7 +47,7 @@ namespace WeatherPrototype
                     }
                     catch (ArgumentNullException)
                     {
-                        Console.WriteLine("Error: CreateGif() encountered null bmps in frameList! Terminating...");
+                        Form1.Globals.AddListBoxItems("GifProcessing.CreateGif: encountered null bmps in frameList! Terminating...");
                         Environment.Exit(1);
                     }
                 }
@@ -70,6 +67,7 @@ namespace WeatherPrototype
             int counter = 1;
 
             // Loop through each frame in inputted GIF and send it to FrameProcessing() as BGR image.
+
             while (true)
             {
                 Mat frame = gif.QueryFrame();
@@ -115,7 +113,7 @@ namespace WeatherPrototype
             var graphicImage = Graphics.FromImage(bitMapImage);
             Random rand = new Random();
 
-            // For each pixel in mask, if pixel is populated, 1/200 chance of text being printed on at x,y on graphicImage.
+            // For each pixel in mask, if pixel is populated, 1/200 chance of text being printed at x,y on graphicImage.
             for (int y = 0; y < mask.Rows; y++)
             {
                 for (int x = 0; x < mask.Cols; x++)
@@ -144,7 +142,7 @@ namespace WeatherPrototype
             }
             catch (ArgumentNullException)
             {
-                Console.WriteLine($"Error: gif contains null frames! Frame: {counter}");
+                Form1.Globals.AddListBoxItems($"GifProcessing.FrameProcessing: gif contains null frames! Frame: {counter}");
                 Environment.Exit(1);
             }
 
@@ -160,9 +158,15 @@ namespace WeatherPrototype
         }
 
         public MagickImageCollection Execute(string imgFilePath, MagickImageCollection collection)
-        { 
+        {
+            var timer = new Stopwatch();
+
+            timer.Start();
             PrepareGif(imgFilePath);
             collection = CreateGif(collection);
+            timer.Stop();
+
+            Form1.Globals.AddListBoxItems($"Successfully processed {imgFilePath} in {timer.Elapsed.Milliseconds} ms.");
 
             return collection;
         }
