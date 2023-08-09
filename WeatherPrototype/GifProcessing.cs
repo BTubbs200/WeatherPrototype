@@ -47,7 +47,7 @@ namespace WeatherPrototype
                     }
                     catch (ArgumentNullException)
                     {
-                        Form1.Globals.AddListBoxItems("GifProcessing.CreateGif: encountered null bmps in frameList! Terminating...");
+                        Form1.Globals.SetListBoxItems("GifProcessing.CreateGif: encountered null bmps in frameList! Terminating...");
                         Environment.Exit(1);
                     }
                 }
@@ -142,7 +142,7 @@ namespace WeatherPrototype
             }
             catch (ArgumentNullException)
             {
-                Form1.Globals.AddListBoxItems($"GifProcessing.FrameProcessing: gif contains null frames! Frame: {counter}");
+                Form1.Globals.SetListBoxItems($"GifProcessing.FrameProcessing: gif contains null frames! Frame: {counter}");
                 Environment.Exit(1);
             }
 
@@ -166,7 +166,7 @@ namespace WeatherPrototype
             collection = CreateGif(collection);
             timer.Stop();
 
-            Form1.Globals.AddListBoxItems($"Successfully processed {imgFilePath} in {timer.Elapsed.Milliseconds} ms.");
+            Form1.Globals.SetListBoxItems($"Successfully processed {imgFilePath} in {timer.Elapsed.Milliseconds} ms.");
 
             return collection;
         }

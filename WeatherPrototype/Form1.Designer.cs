@@ -31,6 +31,7 @@
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             openToolStripMenuItem = new ToolStripMenuItem();
+            saveOutputtedLoopToolStripMenuItem = new ToolStripMenuItem();
             debugToolStripMenuItem = new ToolStripMenuItem();
             showOutputToolStripMenuItem = new ToolStripMenuItem();
             displayPicturebox = new PictureBox();
@@ -52,7 +53,7 @@
             // 
             // fileToolStripMenuItem
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { openToolStripMenuItem });
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { openToolStripMenuItem, saveOutputtedLoopToolStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "File";
@@ -60,9 +61,17 @@
             // openToolStripMenuItem
             // 
             openToolStripMenuItem.Name = "openToolStripMenuItem";
-            openToolStripMenuItem.Size = new Size(103, 22);
+            openToolStripMenuItem.Size = new Size(186, 22);
             openToolStripMenuItem.Text = "Open";
             openToolStripMenuItem.Click += openToolStripMenuItem_Click;
+            // 
+            // saveOutputtedLoopToolStripMenuItem
+            // 
+            saveOutputtedLoopToolStripMenuItem.Enabled = false;
+            saveOutputtedLoopToolStripMenuItem.Name = "saveOutputtedLoopToolStripMenuItem";
+            saveOutputtedLoopToolStripMenuItem.Size = new Size(186, 22);
+            saveOutputtedLoopToolStripMenuItem.Text = "Save Outputted Loop";
+            saveOutputtedLoopToolStripMenuItem.Click += saveOutputtedLoopToolStripMenuItem_Click;
             // 
             // debugToolStripMenuItem
             // 
@@ -153,5 +162,6 @@
         private Button demoButton;
         private ListBox debugOutputListBox;
         private ToolStripMenuItem showOutputToolStripMenuItem;
+        private ToolStripMenuItem saveOutputtedLoopToolStripMenuItem;
     }
 }
