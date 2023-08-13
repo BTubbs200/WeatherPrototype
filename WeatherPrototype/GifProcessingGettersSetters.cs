@@ -5,12 +5,10 @@ namespace WeatherPrototype
     /// <summary>
     /// Getters and setters class for GifProcessing.
     /// </summary>
-    public class GPGetterSetters
+    public class GifProcessingGettersSetters
     {
-        private Rectangle roi = new Rectangle(0, 24, 600, 501);
-
+        private readonly Rectangle roi = new Rectangle(0, 24, 600, 501);
         private static List<Bitmap> frameList = new List<Bitmap>();
-
         private static MagickImageCollection collection = new MagickImageCollection();
 
         public Rectangle GetRoi()

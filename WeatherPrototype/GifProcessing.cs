@@ -7,18 +7,74 @@ namespace WeatherPrototype
 {
     /// <summary>
     /// Class that analyzes composite reflectivity from a radar loop
-    /// and identifies areas of rain by converting the frames to HSV, 
-    /// isolating colors within a specified range, and printing the text 
-    /// "RAIN" on a each frame where areas of rain are identified.
-    /// Processed frames are returned as a MagickImageCollecition GIF.
+    /// and identifies areas of rain by converting the frames to HSV and 
+    /// isolating colors within a specified range; has customizable data processing methods.
     /// </summary>
     public class GifProcessing
     {
+        /// <summary>
+        /// Method that uses a Mercator projection formula to 
+        /// convert WGS84 geocoordinates to a pixel pair on a given image.
+        /// </summary>
+        static int[] ConvertGeoToPixel()
+        {
+            var usrCoords = Form1.Globals.GetGeoCoords;
+            var lat = usrCoords.X; var lon = usrCoords.Y;
+            var mapWidth = GeoToPixelParameters.getMapWidth;
+            var mapLonDelta = GeoToPixelParameters.getMapLonDelta;
+            var mapHeight = GeoToPixelParameters.getMapHeight;
+            var mapLonLeft = GeoToPixelParameters.getMapLonLeft;
+            var mapLatBottom = GeoToPixelParameters.getMapLatBottom;
+            var mapLatBottomRadian = mapLatBottom * (Math.PI / 180);
+
+            var worldMapRadius = mapWidth / mapLonDelta * 360 / (2 * Math.PI);
+            var mapOffsetY = (worldMapRadius / 2 * Math.Log((1 + Math.Sin(mapLatBottomRadian)) / (1 - Math.Sin(mapLatBottomRadian))));
+            var equatorY = mapHeight + mapOffsetY;
+
+            var tx = (lon - mapLonLeft) * (mapWidth / mapLonDelta);
+
+            var latRadian = lat * (Math.PI / 180);
+            var a = Math.Log(Math.Tan(latRadian / 2 + Math.PI / 4));
+
+            var ty = equatorY - (worldMapRadius * a);
+
+            int[] array = new int[2];
+
+            // If outputted pixel coordinates are outside of image,
+            // reduce the offending value until it is within bounds.
+            while (ty > mapHeight || ty < mapLatBottom)
+            {
+                if (ty > mapHeight)
+                {
+                    ty--;
+                }
+                if (ty < mapLatBottom)
+                {
+                    ty++;
+                }
+            }
+
+            while (tx > mapWidth || tx < mapLonLeft)
+            {
+                if (tx > mapWidth)
+                {
+                    tx--;
+                }
+                if (tx < mapLonLeft)
+                {
+                    tx++;
+                }
+            }
+
+            array[0] = (int)Math.Round(Math.Abs(tx)); array[1] = (int)Math.Round((Math.Abs(ty)));
+
+            return array;
+        }
         static MagickImageCollection CreateGif(MagickImageCollection collection)
         {
             collection = new MagickImageCollection();
-            GPGetterSetters gp = new GPGetterSetters();
-            List<Bitmap> frameList = GPGetterSetters.GetFrameList();
+            GifProcessingGettersSetters gp = new GifProcessingGettersSetters();
+            List<Bitmap> frameList = GifProcessingGettersSetters.GetFrameList();
             int frameLatency = 30;
 
             // Loop through each frame in frameList and append it to a new GIF.
@@ -38,7 +94,7 @@ namespace WeatherPrototype
                             }
 
                             MagickImage image = new MagickImage(byteArr);
-                            GPGetterSetters.SetCollection(image, frameLatency);
+                            GifProcessingGettersSetters.SetCollection(image, frameLatency);
                         }
                         else
                         {
@@ -54,15 +110,15 @@ namespace WeatherPrototype
 
                 // Dispose the frame list to avoid errors on the next go-around.
                 Bitmap? bm = null;
-                GPGetterSetters.SetFrameList(bm);
+                GifProcessingGettersSetters.SetFrameList(bm);
 
-                return GPGetterSetters.getCollection();
+                return GifProcessingGettersSetters.getCollection();
             }
         }
 
         static void PrepareGif(string imgFilePath)
         {
-            GPGetterSetters gp = new GPGetterSetters();
+            GifProcessingGettersSetters gp = new GifProcessingGettersSetters();
             VideoCapture gif = new VideoCapture(imgFilePath, VideoCapture.API.Any);
             int counter = 1;
 
@@ -87,7 +143,7 @@ namespace WeatherPrototype
 
         static void FrameProcessing(Image<Bgr, byte> myImage, int counter)
         {
-            GPGetterSetters gp = new GPGetterSetters();
+            GifProcessingGettersSetters gp = new GifProcessingGettersSetters();
             var roi = gp.GetRoi();
 
             // Take image, crop according to roi; create mask that identifies colors within a specified HSV range.
@@ -113,23 +169,30 @@ namespace WeatherPrototype
             var graphicImage = Graphics.FromImage(bitMapImage);
             Random rand = new Random();
 
+            // Draw an ellipse on the map that corresponds to user's inputted coordinates.
+            var pixelCoords = ConvertGeoToPixel();
+            var brush = new SolidBrush(Color.Blue);
+            var ellipseWidth = 10; var ellipseHeight = 10;
+
+            graphicImage.FillEllipse(brush, (pixelCoords[0] - (ellipseWidth / 2)), (pixelCoords[1] - (ellipseHeight / 2)), ellipseWidth, ellipseHeight);
+
             // For each pixel in mask, if pixel is populated, 1/200 chance of text being printed at x,y on graphicImage.
-            for (int y = 0; y < mask.Rows; y++)
-            {
-                for (int x = 0; x < mask.Cols; x++)
-                {
-                    if (mask.Data[y, x, 0] != 0 && rand.Next(0, 200) == 1)
-                    {
-                        graphicImage.DrawString("RAIN", new Font("Arial", 10, FontStyle.Bold), Brushes.Red, new Point(x, y));
-                    }
-                }
-            }
+            /* for (int y = 0; y < mask.Rows; y++)
+             {
+                 for (int x = 0; x < mask.Cols; x++)
+                 {
+                     if (mask.Data[y, x, 0] != 0 && rand.Next(0, 200) == 1)
+                     {
+                         graphicImage.DrawString("RAIN", new Font("Arial", 10, FontStyle.Bold), Brushes.Red, new Point(x, y));
+                     }
+                 }
+             }*/
 
             try
             {
                 if (bitMapImage != null)
                 {
-                    GPGetterSetters.SetFrameList(bitMapImage);
+                    GifProcessingGettersSetters.SetFrameList(bitMapImage);
                 }
                 else
                 {
@@ -137,6 +200,7 @@ namespace WeatherPrototype
                     croppedImage.Dispose();
                     bitMapImage.Dispose();
                     graphicImage.Dispose();
+                    brush.Dispose();
                     throw new ArgumentNullException();
                 }
             }
@@ -150,6 +214,7 @@ namespace WeatherPrototype
             stream = null;
             croppedImage.Dispose();
             graphicImage.Dispose();
+            brush.Dispose();
 
             /// TODO: LEARN HOW TO PROPERLY DISPOSE OF 
             /// BITMAP WITHOUT CREATING NULL FRAMES
