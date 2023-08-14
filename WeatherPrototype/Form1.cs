@@ -63,12 +63,11 @@ namespace WeatherPrototype
         static void StartupCoordInputBox()
         {
             Boolean coordCheck = false;
-            string regularPattern = @"^-?\d{2}\.\d{2}, -?\d{2}\.\d{2}$";
+            string regularPattern = @"^-?\d{2}\.\d{1,15}, -?\d{2}\.\d{1,15}$"; // [-]XX.X(1-15 digits), [-]XX.X(1-15 digits)
 
             while (!coordCheck)
             {
-                string usrCoords = Interaction.InputBox("Welcome! Please enter your WGS84 coordinates to begin:\n\n" +
-                    "Coordinates MUST be in '(-)XX.XX, (-)XX.XX' format to be accepted.", "Enter Coordinates", "");
+                string usrCoords = Interaction.InputBox("Welcome! Please enter your WGS84 coordinates to begin." , "Enter Coordinates", "");
 
                 // Ensures the program quits if the cancel button is pressed.
                 if (usrCoords.Trim() == "") Environment.Exit(0);
@@ -77,7 +76,7 @@ namespace WeatherPrototype
 
                 if (!rg.IsMatch(usrCoords))
                 {
-                    MessageBox.Show("Invalid coordinates.\nPlease enter valid coordinates in '(-)XX.XX, (-)XX.XX'\nformat and try again.");
+                    MessageBox.Show("Invalid coordinates.\n\nPlease enter valid coordinates in\n\"[-]XX.X(1-15 digits), [-]XX.X(1-15 digits)\"\nformat and try again\n\nX  = number from 1-9\n[ ] = optional\n( ) = mandatory");
                 }
                 else
                 {

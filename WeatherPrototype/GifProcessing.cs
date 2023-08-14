@@ -177,7 +177,7 @@ namespace WeatherPrototype
             graphicImage.FillEllipse(brush, (pixelCoords[0] - (ellipseWidth / 2)), (pixelCoords[1] - (ellipseHeight / 2)), ellipseWidth, ellipseHeight);
 
             // For each pixel in mask, if pixel is populated, 1/200 chance of text being printed at x,y on graphicImage.
-            /* for (int y = 0; y < mask.Rows; y++)
+             for (int y = 0; y < mask.Rows; y++)
              {
                  for (int x = 0; x < mask.Cols; x++)
                  {
@@ -186,7 +186,7 @@ namespace WeatherPrototype
                          graphicImage.DrawString("RAIN", new Font("Arial", 10, FontStyle.Bold), Brushes.Red, new Point(x, y));
                      }
                  }
-             }*/
+             }
 
             try
             {
