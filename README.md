@@ -18,4 +18,4 @@ The program will begin with a prompt to enter your WGS84 geocoordinates (this is
 ![image](https://github.com/BTubbs200/WeatherPrototype/assets/131938002/d27312dd-fe9f-4077-9d95-d7bb55294af9)
 
 ## Note
-The program does a nearly perfect job of detecting all areas of rain, although this may not reflect 100% accurately in the text display, which only serves as feedback for human eyes and is limitied by a threshold to prevent text from completely bombarding the screen.
+The program does a nearly perfect job of detecting all areas of rain, although this may not reflect 100% accurately in the text display, which only serves as feedback for human eyes and is limited by a threshold to prevent text from completely bombarding the screen.
