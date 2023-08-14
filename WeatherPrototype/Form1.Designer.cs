@@ -140,8 +140,11 @@
             Controls.Add(statusLabel);
             Controls.Add(displayPicturebox);
             Controls.Add(menuStrip1);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
             MainMenuStrip = menuStrip1;
             MaximizeBox = false;
+            MaximumSize = new Size(800, 700);
+            MinimumSize = new Size(800, 700);
             Name = "Form1";
             Text = "WeatherProtoype";
             menuStrip1.ResumeLayout(false);
