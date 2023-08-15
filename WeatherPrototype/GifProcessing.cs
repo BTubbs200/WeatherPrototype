@@ -70,6 +70,7 @@ namespace WeatherPrototype
 
             return array;
         }
+
         static MagickImageCollection CreateGif(MagickImageCollection collection)
         {
             collection = new MagickImageCollection();
