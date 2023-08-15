@@ -1,4 +1,4 @@
-# WeatherPrototype
+# WeatherPrototype v0.1.0
 Welcome to WeatherProtoype, a project that has the goal of analyzing National Weather Service regional radar loops and informing users of any weather in the vicinity by accurately identifying areas of precipitation and tracking their motion. This project is still in the prototype stage and is very much a work-in-progress.
 
 The project currently exists as a Winforms application with basic functionality for processing radar loop GIFs, detecting user location, and identifying areas of precipitation in each frame of the loop. It uses the following NuGet packages: 
