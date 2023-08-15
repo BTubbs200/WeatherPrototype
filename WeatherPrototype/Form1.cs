@@ -136,6 +136,7 @@ namespace WeatherPrototype
 
             // Since MagickImageCollection is a reference, anytime .Dispose() is called,
             // globalCollection and any variables referencing it get disposed as well.
+            // see Issue #1 on GitHub.
             localCollection.Dispose();
 
             /// Does bitmap get disposed properly without explicitly disposing?
