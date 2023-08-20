@@ -5,7 +5,7 @@ namespace WeatherPrototype
     /// <summary>
     /// Getters and setters class for GifProcessing.
     /// </summary>
-    public class GifProcessingGettersSetters
+    public class GifProcessingGlobals
     {
         private readonly Rectangle roi = new Rectangle(0, 24, 600, 501);
         private static List<Bitmap> frameList = new List<Bitmap>();

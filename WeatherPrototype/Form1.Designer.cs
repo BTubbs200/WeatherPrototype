@@ -146,7 +146,7 @@
             MaximumSize = new Size(800, 700);
             MinimumSize = new Size(800, 700);
             Name = "Form1";
-            Text = "WeatherProtoype";
+            Text = "WeatherProtoype v0.1.0";
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)displayPicturebox).EndInit();

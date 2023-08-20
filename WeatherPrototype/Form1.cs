@@ -67,7 +67,7 @@ namespace WeatherPrototype
 
             while (!coordCheck)
             {
-                string usrCoords = Interaction.InputBox("Welcome! Please enter your WGS84 coordinates to begin." , "Enter Coordinates", "");
+                string usrCoords = Interaction.InputBox("Welcome! Please enter your WGS84 coordinates to begin.", "Enter Coordinates", "");
 
                 // Ensures the program quits if the cancel button is pressed.
                 if (usrCoords.Trim() == "") Environment.Exit(0);

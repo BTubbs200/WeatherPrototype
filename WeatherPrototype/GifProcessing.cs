@@ -2,6 +2,9 @@
 using Emgu.CV.Structure;
 using ImageMagick;
 using System.Diagnostics;
+using System.Drawing;
+using System.Net.Security;
+using static WeatherPrototype.Form1;
 
 namespace WeatherPrototype
 {
@@ -74,8 +77,8 @@ namespace WeatherPrototype
         static MagickImageCollection CreateGif(MagickImageCollection collection)
         {
             collection = new MagickImageCollection();
-            GifProcessingGettersSetters gp = new GifProcessingGettersSetters();
-            List<Bitmap> frameList = GifProcessingGettersSetters.GetFrameList();
+            GifProcessingGlobals gp = new GifProcessingGlobals();
+            List<Bitmap> frameList = GifProcessingGlobals.GetFrameList();
             int frameLatency = 30;
 
             // Loop through each frame in frameList and append it to a new GIF.
@@ -95,7 +98,7 @@ namespace WeatherPrototype
                             }
 
                             MagickImage image = new MagickImage(byteArr);
-                            GifProcessingGettersSetters.SetCollection(image, frameLatency);
+                            GifProcessingGlobals.SetCollection(image, frameLatency);
                         }
                         else
                         {
@@ -111,20 +114,19 @@ namespace WeatherPrototype
 
                 // Dispose the frame list to avoid errors on the next go-around.
                 Bitmap? bm = null;
-                GifProcessingGettersSetters.SetFrameList(bm);
+                GifProcessingGlobals.SetFrameList(bm);
 
-                return GifProcessingGettersSetters.getCollection();
+                return GifProcessingGlobals.getCollection();
             }
         }
 
         static void PrepareGif(string imgFilePath)
         {
-            GifProcessingGettersSetters gp = new GifProcessingGettersSetters();
+            GifProcessingGlobals gp = new GifProcessingGlobals();
             VideoCapture gif = new VideoCapture(imgFilePath, VideoCapture.API.Any);
             int counter = 1;
 
             // Loop through each frame in inputted GIF and send it to FrameProcessing() as BGR image.
-
             while (true)
             {
                 Mat frame = gif.QueryFrame();
@@ -142,9 +144,139 @@ namespace WeatherPrototype
             gif.Dispose();
         }
 
+        /// <summary>
+        /// Method that checks for white mask pixels (areas of rain)
+        /// within two certain perimeter thresholds of user location,
+        /// writes a message to output log if rain is detected in 
+        /// two respective thresholds. (inner and outer west, inner and outer south, etc.)
+        /// </summary>
+        static void RainCheck(Image<Gray, byte> mask)
+        {
+            var pixelCoords = ConvertGeoToPixel();
+
+            // Create all lines necessary to create two encapsulated quadrilaterals around user location pixel.
+            var innerNorthLineWestPoint = new Point(pixelCoords[0] - 1, pixelCoords[1] - 2);
+            var innerNorthLineEastPoint = new Point(pixelCoords[0] + 1, pixelCoords[1] - 2);
+            var innerSouthLineWestPoint = new Point(pixelCoords[0] - 1, pixelCoords[1] + 2);
+            var innerSouthLineEastPoint = new Point(pixelCoords[0] + 1, pixelCoords[1] + 2);
+            var innerWestLineSouthPoint = new Point(pixelCoords[0] - 2, pixelCoords[1] + 1);
+            var innerWestLineNorthPoint = new Point(pixelCoords[0] - 2, pixelCoords[1] - 1);
+            var innerEastLineSouthPoint = new Point(pixelCoords[0] + 2, pixelCoords[1] + 1);
+            var innerEastLineNorthPoint = new Point(pixelCoords[0] + 2, pixelCoords[1] - 1);
+
+            var outerNorthLineWestPoint = new Point(pixelCoords[0] - 3, pixelCoords[1] - 4);
+            var outerNorthLineEastPoint = new Point(pixelCoords[0] + 3, pixelCoords[1] - 4);
+            var outerSouthLineWestPoint = new Point(pixelCoords[0] - 3, pixelCoords[1] + 4);
+            var outerSouthLineEastPoint = new Point(pixelCoords[0] + 3, pixelCoords[1] + 4);
+            var outerWestLineSouthPoint = new Point(pixelCoords[0] - 4, pixelCoords[1] + 3);
+            var outerWestLineNorthPoint = new Point(pixelCoords[0] - 4, pixelCoords[1] - 3);
+            var outerEastLineSouthPoint = new Point(pixelCoords[0] + 4, pixelCoords[1] + 3);
+            var outerEastLineNorthPoint = new Point(pixelCoords[0] + 4, pixelCoords[1] - 3);
+
+            Boolean breakCheck = false;
+
+            // Loop through outer direction line, if rain detected in outer line then loop through
+            // respective inner line. If rain found there, send message to output log.
+
+            for (int x = outerNorthLineWestPoint.X; x <= outerNorthLineEastPoint.X; x++)
+            {
+                if (breakCheck == true) break;
+
+                if (mask.Data[outerNorthLineWestPoint.Y, x, 0] != 0)
+                {
+                    for (int z = innerNorthLineWestPoint.X; z <= innerNorthLineEastPoint.X; z++)
+                    {
+                        if (mask.Data[innerNorthLineWestPoint.Y, z, 0] != 0)
+                        {
+                            Globals.SetListBoxItems("Rain approaches from the north!");
+                            breakCheck = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            breakCheck = false;
+
+            for (int x = outerSouthLineWestPoint.X; x <= outerSouthLineEastPoint.X; x++)
+            {
+                if (breakCheck == true) break;
+
+                if (mask.Data[outerNorthLineWestPoint.Y, x, 0] != 0)
+                {
+                    for (int z = innerSouthLineWestPoint.X; z <= innerSouthLineEastPoint.X; z++)
+                    {
+                        if (mask.Data[innerSouthLineWestPoint.Y, z, 0] != 0)
+                        {
+                            Globals.SetListBoxItems("Rain approaches from the south!");
+                            breakCheck = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            breakCheck = false;
+
+            for (int y = outerWestLineSouthPoint.Y; y >= outerWestLineNorthPoint.Y; y--)
+            {
+                if (breakCheck == true) break;
+
+                if (mask.Data[y, outerWestLineSouthPoint.X, 0] != 0)
+                {
+                    for (int z = innerWestLineSouthPoint.Y; z >= innerWestLineNorthPoint.Y; z--)
+                    {
+                        if (mask.Data[z, innerWestLineSouthPoint.X, 0] != 0)
+                        {
+                            Globals.SetListBoxItems("Rain approaches from the west!");
+                            breakCheck = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            breakCheck = false;
+
+            for (int y = outerEastLineSouthPoint.Y; y >= outerEastLineNorthPoint.Y; y--)
+            {
+                if (breakCheck == true) break;
+
+                if (mask.Data[y, outerEastLineSouthPoint.X, 0] != 0)
+                {
+                    for (int z = innerEastLineSouthPoint.Y; z >= innerEastLineNorthPoint.Y; z--)
+                    {
+                        if (mask.Data[z, innerEastLineSouthPoint.X, 0] != 0)
+                        {
+                            Globals.SetListBoxItems("Rain approaches from the east!");
+                            breakCheck = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            /// (Debugging) make threshold perimeters around user location visible.
+            /*  
+                var penOrange = new Pen(Color.Orange);
+                var penBlue = new Pen(Color.Blue);
+                var penGreen = new Pen(Color.Green);
+                var penRed = new Pen(Color.Red);
+                graphicImage.DrawLine(penOrange, innerNorthLineWestPoint, innerNorthLineEastPoint);
+                graphicImage.DrawLine(penBlue, innerSouthLineWestPoint, innerSouthLineEastPoint);
+                graphicImage.DrawLine(penGreen, innerWestLineSouthPoint, innerWestLineNorthPoint);
+                graphicImage.DrawLine(penRed, innerEastLineSouthPoint, innerEastLineNorthPoint);
+
+                graphicImage.DrawLine(penOrange, outerNorthLineWestPoint, outerNorthLineEastPoint);
+                graphicImage.DrawLine(penBlue, outerSouthLineWestPoint, outerSouthLineEastPoint);
+                graphicImage.DrawLine(penGreen, outerWestLineSouthPoint, outerWestLineNorthPoint);
+                graphicImage.DrawLine(penRed, outerEastLineSouthPoint, outerEastLineNorthPoint);   
+            */
+        }
+
         static void FrameProcessing(Image<Bgr, byte> myImage, int counter)
         {
-            GifProcessingGettersSetters gp = new GifProcessingGettersSetters();
+            GifProcessingGlobals gp = new GifProcessingGlobals();
             var roi = gp.GetRoi();
 
             // Take image, crop according to roi; create mask that identifies colors within a specified HSV range.
@@ -159,41 +291,25 @@ namespace WeatherPrototype
             Hsv upperBound = new Hsv(180, 255, 255);
             Image<Gray, byte> mask = croppedImage.InRange(lowerBound, upperBound);
 
-            ////////// MASK DEBUG ///////////////
-            /*CvInvoke.Imshow("test", mask);
-            CvInvoke.WaitKey(0);*/
-            ///////////////////////////////////
+            RainCheck(mask);
 
             // Initialize a Bgr Graphics bitmap identical to MyImage to be used for better processing capabilities.
             var bitMapImage = new Bitmap(stream, true);
             bitMapImage = bitMapImage.Clone(roi, bitMapImage.PixelFormat);
             var graphicImage = Graphics.FromImage(bitMapImage);
-            Random rand = new Random();
 
-            // Draw an ellipse on the map that corresponds to user's inputted coordinates.
             var pixelCoords = ConvertGeoToPixel();
             var brush = new SolidBrush(Color.Blue);
-            var ellipseWidth = 10; var ellipseHeight = 10;
+            var ellipseWidth = 7; var ellipseHeight = 7;
 
+            // Render user coordinates as a blue ellipse on loop. 
             graphicImage.FillEllipse(brush, (pixelCoords[0] - (ellipseWidth / 2)), (pixelCoords[1] - (ellipseHeight / 2)), ellipseWidth, ellipseHeight);
-
-            // For each pixel in mask, if pixel is populated, 1/200 chance of text being printed at x,y on graphicImage.
-             for (int y = 0; y < mask.Rows; y++)
-             {
-                 for (int x = 0; x < mask.Cols; x++)
-                 {
-                     if (mask.Data[y, x, 0] != 0 && rand.Next(0, 200) == 1)
-                     {
-                         graphicImage.DrawString("RAIN", new Font("Arial", 10, FontStyle.Bold), Brushes.Red, new Point(x, y));
-                     }
-                 }
-             }
 
             try
             {
                 if (bitMapImage != null)
                 {
-                    GifProcessingGettersSetters.SetFrameList(bitMapImage);
+                    GifProcessingGlobals.SetFrameList(bitMapImage);
                 }
                 else
                 {
@@ -207,7 +323,7 @@ namespace WeatherPrototype
             }
             catch (ArgumentNullException)
             {
-                Form1.Globals.SetListBoxItems($"GifProcessing.FrameProcessing: gif contains null frames! Frame: {counter}");
+                Globals.SetListBoxItems($"GifProcessing.FrameProcessing: gif contains null frames! Frame: {counter}");
                 Environment.Exit(1);
             }
 
@@ -216,11 +332,6 @@ namespace WeatherPrototype
             croppedImage.Dispose();
             graphicImage.Dispose();
             brush.Dispose();
-
-            /// TODO: LEARN HOW TO PROPERLY DISPOSE OF 
-            /// BITMAP WITHOUT CREATING NULL FRAMES
-            /// IN FRAMELIST.
-            //bitMapImage.Dispose();
         }
 
         public MagickImageCollection Execute(string imgFilePath, MagickImageCollection collection)
@@ -232,7 +343,7 @@ namespace WeatherPrototype
             collection = CreateGif(collection);
             timer.Stop();
 
-            Form1.Globals.SetListBoxItems($"Successfully processed {imgFilePath} in {timer.Elapsed.Milliseconds} ms.");
+            Globals.SetListBoxItems($"Successfully processed {imgFilePath} in {timer.Elapsed.Milliseconds} ms.");
 
             return collection;
         }
